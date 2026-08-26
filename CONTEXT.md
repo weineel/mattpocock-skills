@@ -18,11 +18,37 @@ A `wayfinder` unit: a child **Issue** of a `wayfinder:map` holding a *question* 
 **Triage role**:
 A canonical state-machine label applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-afk`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
 
+**Autonomous grilling**:
+A grilling process in which the **Planning agent** raises each decision question and immediately adopts its own recommended answer instead of waiting for a human response.
+
+**Planning agent**:
+The agent that runs the self-directed form of **Autonomous grilling**, records the resulting decisions, and chooses whether the work needs an **Implementation brief** before handing it off. It does not modify the product.
+
+**Driving agent**:
+The agent that questions a **Respondent agent** and owns the resulting **Decision log**. It implements simple work itself and delegates complex work through an **Implementation brief**.
+
+**Respondent agent**:
+The persistent agent that answers a **Driving agent** during **Autonomous grilling** and reviews the Driving agent's direct implementation. It does not implement complex work.
+
+**Implementation agent**:
+The agent that receives settled work from the **Planning agent** and owns the product changes, tests, review, and commit.
+
+**Implementation brief**:
+A self-contained, spec-shaped description of settled work that a **Planning agent** may pass directly to an **Implementation agent**. It is not an **Issue** and is not published to an **Issue tracker**.
+
+**Decision log**:
+A transient record of each question raised during **Autonomous grilling**, the recommended answer adopted by the agent, and the reason for that choice. It is handed to the implementing agent and summarized for the user, but is not stored in the project.
+
 ## Relationships
 
 - An **Issue tracker** holds many **Issues**
 - An **Issue** carries one **Triage role** at a time
 - A **Decision ticket** is an **Issue** (a child of a `wayfinder:map`)
+- A **Planning agent** hands settled work to an **Implementation agent**
+- A **Planning agent** may produce an **Implementation brief** before that handoff
+- A **Driving agent** questions one **Respondent agent**
+- A **Driving agent** either implements settled work or hands an **Implementation brief** to an **Implementation agent**
+- **Autonomous grilling** produces a **Decision log**
 
 ## Flagged ambiguities
 

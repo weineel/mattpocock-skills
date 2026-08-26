@@ -8,6 +8,10 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 
 - **[ask-matt](./ask-matt/SKILL.md)**: Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
 - **[grill-with-docs](./grill-with-docs/SKILL.md)**: Grilling session that also builds your project's domain model, sharpening terminology and updating `CONTEXT.md` and ADRs inline.
+- **[grill-agent](./grill-agent/SKILL.md)**: Resolve the design autonomously, then hand implementation to a separate agent.
+- **[grill-agent-with-docs](./grill-agent-with-docs/SKILL.md)**: Resolve the design autonomously, maintain the domain model, then hand implementation to a separate agent.
+- **[grill-agent-team](./grill-agent-team/SKILL.md)**: Have one agent grill another, then implement directly or hand complex work to a third agent.
+- **[grill-agent-team-with-docs](./grill-agent-team-with-docs/SKILL.md)**: Run the agent-team grill and implementation flow while maintaining the domain model.
 - **[triage](./triage/SKILL.md)**: Move issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./improve-codebase-architecture/SKILL.md)**: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
 - **[setup-matt-pocock-skills](./setup-matt-pocock-skills/SKILL.md)**: Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo.

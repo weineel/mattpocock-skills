@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill Agent with Docs"
+  short_description: "Autonomous grill, document, and implement"
+policy:
+  allow_implicit_invocation: false

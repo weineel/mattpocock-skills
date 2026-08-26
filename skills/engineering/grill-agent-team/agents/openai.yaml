@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill Agent Team"
+  short_description: "Agent-team grill, then implement"
+policy:
+  allow_implicit_invocation: false

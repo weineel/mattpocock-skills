@@ -25,6 +25,17 @@ The route most work travels. You have an idea and want it built.
 
    Either way, **`/implement`** builds each issue by driving **`/tdd`** internally (one red-green slice at a time), then closes out by running **`/code-review`**, a two-axis review (Standards + Spec) of the diff, before committing. Reach for **`/tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`/code-review`** on its own whenever you want to review a branch or PR against a fixed point.
 
+## Agent-run alternatives
+
+Use these when you want one explicit invocation to settle the design and deliver a local commit without waiting for ordinary product decisions:
+
+| Decision topology | No domain files | Maintain `CONTEXT.md` and qualifying ADRs |
+| --- | --- | --- |
+| One agent asks and adopts its own recommendations, then a separate agent implements | `/grill-agent` | `/grill-agent-with-docs` |
+| One agent questions an independent respondent, then implements simple work or delegates complex work | `/grill-agent-team` | `/grill-agent-team-with-docs` |
+
+These are end-to-end alternatives to the main flow. They create a transient Decision log and, for complex work, an internal Implementation brief. They do not invoke `/to-spec`, publish an Issue, or enter the `/to-tickets` chain. All four require subagent support and stop before product edits when the required topology is unavailable.
+
 ### Context hygiene
 
 Keep steps 1–3 in **one unbroken context window** (don't compact or clear until after `/to-tickets`) so the grilling, spec, and tickets all build on the same thinking. Each `/implement` then starts fresh, working from the ticket.
@@ -75,7 +86,7 @@ Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree: the five q
 Off the main flow entirely.
 
 - **`/grill-me`**: the same relentless interview as `/grill-with-docs`, but **stateless**: it saves nothing locally and builds no `CONTEXT.md`. Reach for it when you are **not working in a working directory** (sharpening a plan, a design, a piece of writing, anything with no repo under it). If you are in a working directory, use `/grill-with-docs` instead: it runs the same interview and leaves a paper trail, so it is strictly the better one.
-- **`/grilling`** is the interview primitive itself: rounds, the frontier, facts are the agent's job and decisions are yours. `/grill-me` and `/grill-with-docs` are the two named ways in, and `/triage`, `/wayfinder` and `/improve-codebase-architecture` all run it internally. Reach for it directly only when you want the interview with no wrapper around it.
+- **`/grilling`** is the decision-tree primitive itself. Interactive mode uses rounds and keeps decisions with the user. `/grill-agent` selects Self-directed mode, while `/grill-agent-team` selects Respondent-agent mode. Reach for it directly only when you want the default interview with no wrapper around it.
 - **`/resolving-merge-conflicts`** works an in-progress merge or rebase conflict hunk by hunk, resolving by **intent** traced to each side's primary source rather than by picking lines, then finishes the operation. It never runs `--abort`. Standalone and off every flow: reach for it when you are already mid-conflict.
 - **`/prototype`** is a small, throwaway program that answers one design question: does this state model feel right, or what should this UI look like. Throwaway is a constraint on how the code is written, not a promise to destroy it: the answer folds into the real code, and the prototype itself is kept as a **primary source** on a `prototype/<name>` branch out of main, pointed at from the implementation issue. It's the detour in step 2 of the main flow, but reach for it any time a design question is hard to settle on paper.
 - **`/research`**: delegate reading legwork to a **background agent**: it investigates a question against **primary sources**, then leaves a cited Markdown file in the repo. Keep working while it reads. The file it produces is something to take *into* the main flow at `/grill-with-docs`, since research feeds the thinking rather than replacing it.

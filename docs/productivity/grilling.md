@@ -1,8 +1,8 @@
 ## What it does
 
-`grilling` is the interview loop that stress-tests a plan, a decision, or an idea before anyone acts on it. It maps the subject as a **design tree**: every decision branches into the decisions that hang off it, and interviews you branch by branch until nothing is left silently assumed.
+`grilling` is the decision-tree primitive that stress-tests a plan, a decision, or an idea before anyone acts on it. It maps the subject as a **design tree**: every decision branches into the decisions that hang off it, and works branch by branch until nothing is left silently assumed.
 
-It does not ask one question at a time, and it does not ask everything at once. Each **round** asks the whole **frontier**: every decision whose prerequisites are already settled, and nothing else. Two questions never share a round if one depends on the other; a question that hinges on an answer still open belongs to a later round. Your answers settle decisions, the frontier moves outward, and the next round asks what that unblocked. Thirteen questions typically land in about three rounds rather than thirteen.
+Interactive mode remains the default: it interviews you in **rounds**, and your decisions move the **frontier** outward. Two explicit agent-run modes reuse the same tree without changing that default. Self-directed mode adopts the driving agent's recommendations, while Respondent-agent mode has one agent question another.
 
 ## When to reach for it
 
@@ -14,11 +14,13 @@ Typing `/grilling` directly gets you the plain interview and nothing else. Where
 | --- | --- |
 | You aren't working in a working directory | [grill-me](https://aihero.dev/skills-grill-me): the same [session](https://www.aihero.dev/ai-coding-dictionary/session), under a name the agent will never fire by itself |
 | You are in a working directory | [grill-with-docs](https://aihero.dev/skills-grill-with-docs): the same session, and it writes `CONTEXT.md` and ADRs as it goes |
+| One agent should make the decisions and another should implement | [grill-agent](https://aihero.dev/skills-grill-agent), or [grill-agent-with-docs](https://aihero.dev/skills-grill-agent-with-docs) when the domain model should be maintained |
+| One agent should question an independent respondent | [grill-agent-team](https://aihero.dev/skills-grill-agent-team), or [grill-agent-team-with-docs](https://aihero.dev/skills-grill-agent-team-with-docs) when the domain model should be maintained |
 | An effort too big to hold in one session | [wayfinder](https://aihero.dev/skills-wayfinder): it charts a map and runs grilling inside the decision tickets |
 | A question that talking cannot settle: how something should look or feel | [prototype](https://aihero.dev/skills-prototype): build the throwaway version, then come back |
 | A skill of your own that needs an interview | Invoke `/grilling` from it, rather than writing another interview |
 
-## The round, the frontier, and who decides
+## Interactive mode: the round and the frontier
 
 Three ideas carry the whole skill.
 
@@ -26,9 +28,21 @@ The **design tree** is the model of the subject: decisions with decisions hangin
 
 Inside a round every question arrives in a fixed shape: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. That is what makes a round answerable by number ("1 yes, 2 the second option, 3 no, here's why") instead of by quoting questions back. The format has one known rough edge: the recommendation sometimes argues *against* the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
 
-The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the [environment](https://www.aihero.dev/ai-coding-dictionary/environment) can settle, it dispatches a [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) to go and find out rather than asking you. It does not block on that; only the questions downstream of a running exploration wait. Decisions are yours, and it must wait for them. An agent running `grilling` that answers its own decisions has broken the skill, not interpreted it liberally. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
+The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the [environment](https://www.aihero.dev/ai-coding-dictionary/environment) can settle, it dispatches a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) to go and find out rather than asking you. It does not block on that; only the questions downstream of a running exploration wait. A fact-finding result never counts as your answer and never advances a round still waiting for you. Decisions are yours, and it must wait for them. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
 
 The honest limit: the frontier is the agent's judgement, not a computed graph. It can put two questions in one round and only afterwards discover that one answer should have changed the other. There is no guard against that beyond telling it, which reopens the affected branch in the next round.
+
+## The two agent modes
+
+Agent modes are selected only by an explicit wrapper. They never activate because the ordinary interactive run feels slow.
+
+| Mode | Who answers | What completes the grill |
+| --- | --- | --- |
+| Interactive | The user, one frontier round at a time | Empty frontier plus user confirmation |
+| Self-directed | Agent A recommends and adopts each answer | An exhaustive Decision log |
+| Respondent-agent | One persistent Agent B answers Agent A one question at a time | An exhaustive Decision log with disagreements recorded |
+
+The two agent modes continue through implementation. They classify the settled work, create an internal Implementation brief for the complex branch, enforce one product writer at a time, and end on a validated task-only commit. That contract lives behind a context pointer so interactive callers do not load it.
 
 ## What lives here and what lives in the wrappers
 
@@ -37,6 +51,7 @@ This page covers the mechanism. The things people most often want are documented
 | Question | Where it is answered |
 | --- | --- |
 | The tree, the frontier, rounds, the question format, facts vs decisions | Here |
+| The agent-run Decision log, complexity split, implementation roles, and completion gate | Here, in the agent-mode reference loaded by the four `grill-agent` wrappers |
 | How long a session should run, what to do with a question you can't answer by talking, how to avoid nodding along | [grill-me](https://aihero.dev/skills-grill-me) |
 | What gets written to `CONTEXT.md`, what becomes an ADR | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
 
@@ -61,13 +76,16 @@ This is the most common objection to the round design, and the frontier is the a
 A confirmation gate exists precisely for this: the skill is not finished when the frontier empties, it is finished when you say the understanding is shared. Weaker and faster [models](https://www.aihero.dev/ai-coding-dictionary/model) still break it; this is reported most often on lower-effort or non-frontier models, which collapse "interview until shared understanding" into a couple of questions and an outline. If yours does it, the reliable fix is a line in your own `AGENTS.md` or `CLAUDE.md` telling the agent not to implement without permission.
 
 **It answered its own questions instead of asking me.**
-That is a bug in the run, not the intended behaviour, and it was the reason facts and decisions were separated in the skill's text. It shows up most when another skill runs `grilling` inside a resolve-this-ticket frame, where the surrounding task reads as licence to keep moving. The same constraint is why there is no async mode: people have asked for a variant that reads a GitHub issue and posts one consolidated decision memo, and that is a different skill, because a grilling session that nobody answers has produced the agent's opinion rather than yours.
+That is still a bug in Interactive mode. Self-directed decisions are legal only when an explicit [grill-agent](https://aihero.dev/skills-grill-agent) wrapper selects that mode and delegates the product choices. The mode is recorded before the first question, so a run cannot silently switch because the surrounding task sounds autonomous.
+
+**A fact-finding subagent returned and the skill immediately posted another round. Was that my answer?**
+No. A background result can settle a fact and reshape the tree, but it cannot settle a user decision or advance a round still waiting for your answers. Treating a tool result as the user's reply is a control-flow bug.
 
 **Can I cap the number of questions?**
 No, and a cap is deliberately out of scope. Some plans need three questions and some need fifty; a fixed ceiling either truncates the hard case or feels arbitrary on the easy one. Steering in plain language is the intended control: tell it to wrap up, or stop and accept the plan where it stands. If a session is running very long, the cause is usually that the scope was too big; break the work up and grill the pieces.
 
 **I installed `grill-me` on its own and nothing happens.**
-`grill-me` is a one-line skill whose whole body is "run a `/grilling` session", so it needs this skill installed too. The same is true of `grill-with-docs`, which additionally needs [domain-modeling](https://aihero.dev/skills-domain-modeling). Installing the whole set avoids the problem; installing selectively means installing the primitives as well.
+`grill-me` is a one-line wrapper around this skill, so it needs `grilling` installed too. The same is true of all four `grill-agent` wrappers. The three `with-docs` wrappers additionally need [domain-modeling](https://aihero.dev/skills-domain-modeling). Installing the whole set avoids the problem; installing selectively means installing the primitives as well.
 
 **`grill-with-docs` ran, but it never loaded `grilling`.**
 A real and unfixed rough edge, reported across [harnesses](https://www.aihero.dev/ai-coding-dictionary/harness) and models: a skill that names another skill does not reliably cause that skill to load, and `grill-with-docs` names two. The tell is a session that asks everything at once with no recommendations attached: that is the model improvising an interview rather than running this one. Asking the agent directly whether it loaded `grilling` and `domain-modeling` usually recovers it.
@@ -81,7 +99,10 @@ A real and unfixed rough edge, reported across [harnesses](https://www.aihero.de
 - Research running in the background does not stall the round; only the questions that depend on it wait.
 - It stops at the end and asks you to confirm the understanding is shared, instead of starting work.
 - Question count stays high while round count stays low.
+- A Self-directed run records every adopted recommendation instead of waiting for the user.
+- A Respondent-agent run keeps one independent respondent, asks it one question at a time, and records disagreements.
+- Agent-run modes end only after the selected implementation topology produces a reviewed, validated task-only commit.
 
 ## Where it fits
 
-`grilling` is a **primitive**, not a step you schedule: the single source of truth for the interview technique, kept in one place so every skill that needs an interview reaches for it instead of inventing one. [grill-me](https://aihero.dev/skills-grill-me) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) are its two user-invoked front doors, and `grill-with-docs` is where the main build chain begins, ahead of [to-spec](https://aihero.dev/skills-to-spec). [wayfinder](https://aihero.dev/skills-wayfinder) runs it to resolve decision tickets, [triage](https://aihero.dev/skills-triage) to grill a vague report into a workable one, and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) to walk the tree once you have picked a candidate to deepen. When you are unsure which entry point fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+`grilling` is a **primitive**, not a step you schedule: the single source of truth for the design-tree technique, kept in one place so every skill that needs it reaches for the same process. [grill-me](https://aihero.dev/skills-grill-me) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) select Interactive mode. [grill-agent](https://aihero.dev/skills-grill-agent) selects Self-directed mode, and [grill-agent-team](https://aihero.dev/skills-grill-agent-team) selects Respondent-agent mode. [wayfinder](https://aihero.dev/skills-wayfinder), [triage](https://aihero.dev/skills-triage), and [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) keep the Interactive default. When you are unsure which entry point fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.

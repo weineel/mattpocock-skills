@@ -11,6 +11,7 @@ You invoke this by typing `/ask-matt`; the agent won't reach for it on its own.
 | Your situation | What the router gives back |
 | --- | --- |
 | An idea, and no idea where to start | The head of the main flow, and whether the build is small enough to skip the spec |
+| An idea you want agents to decide and build without ordinary checkpoints | The `grill-agent` or `grill-agent-team` family, selected by decision topology and whether domain files should be maintained |
 | Bugs and requests arriving from other people | The [triage](https://aihero.dev/skills-triage) on-ramp, and why [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) you generated yourself don't belong on it |
 | Two skills that look interchangeable | The line between them, and it is usually one concrete test rather than a matter of taste. [grill-me](https://aihero.dev/skills-grill-me) or [grill-with-docs](https://aihero.dev/skills-grill-with-docs) turns on whether you are in a working directory; [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [wayfinder](https://aihero.dev/skills-wayfinder) turns on whether the effort fits one session |
 | A long session and a decision about the [context](https://www.aihero.dev/ai-coding-dictionary/context) | The ordered tree over the five options at a phase boundary |
@@ -27,6 +28,7 @@ The tracker-dependent routes (triage, `to-spec`, `to-tickets`, `implement`) assu
 The word the skill gives you to think with is **flow**: a path *through* the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
 
 - **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with two branches inside it: a prototype detour when a question needs runnable code to settle, and the spec-and-tickets split, which only earns its cost when the build spans more than one session.
+- **Agent-run alternatives**, idea to local commit in one invocation. One branch uses a self-directed Planning agent and a separate implementer; the other cross-examines an independent respondent and delegates only the complex implementation branch.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
 - **Standalones**, off every flow, reached for on their own terms: the prototype, the questionnaire, the merge conflict you are already sitting in.
 - **A vocabulary layer underneath**, the two references the other skills pull in when the words rather than the process are the problem.
@@ -53,7 +55,7 @@ People keep asking for one in the README. This skill is that list: it is what it
 
 **It told me half the skills aren't installed.**
 
-A known bug, unfixed. Most of the skills the router routes you through set `disable-model-invocation: true`, which means the harness leaves them out of the skill list it injects into the agent's context. The agent reads that list as exhaustive and reports them missing. One reported session had it declare the whole spec-and-tickets flow absent and reroute to bare `/grilling` and `/tdd`. Thirteen of the plugin's twenty-two skills carry the flag, so this is the common case rather than an edge. They are installed. Type the slash command anyway, or check `.claude-plugin/plugin.json`, which is the authority on what is present.
+A known bug, unfixed. Most of the skills the router routes you through set `disable-model-invocation: true`, which means the harness leaves them out of the skill list it injects into the agent's context. The agent reads that list as exhaustive and reports them missing. One reported session had it declare the whole spec-and-tickets flow absent and reroute to bare `/grilling` and `/tdd`. This affects the agent-run wrappers too. They are installed. Type the slash command anyway, or check `.claude-plugin/plugin.json`, which is the authority on what is present.
 
 **It described a skill's behaviour, and the skill doesn't do that.**
 
@@ -66,6 +68,10 @@ A fair complaint, filed as an open issue arguing that most of the routing is det
 **Can it route over my own skills, or another author's?**
 
 No. Three separate proposals have asked for a router that reads your local `skills/` directory and recommends from whatever is installed. `ask-matt` is not that. It is a map of one set, maintained by hand, and it knows nothing about skills you wrote or installed from elsewhere.
+
+**Which of the four `grill-agent` skills do I want?**
+
+Pick the decision topology first. `grill-agent` lets one agent ask and adopt its own recommendations; `grill-agent-team` has that agent question an independent respondent. Then add `-with-docs` only when you want `CONTEXT.md` and qualifying ADRs maintained. All four are end-to-end local flows, not the start of the `/to-spec` and `/to-tickets` chain.
 
 **It told me to edit a SKILL.md.**
 
@@ -85,6 +91,6 @@ Check the changelog for a rename before assuming it is gone. `writing-great-skil
 
 ## Where it fits
 
-`ask-matt` is a **standalone router** that sits over the whole set. It is never a step in a chain; it points into every chain, and it is the node the other docs pages link back to so none of them has to redraw the graph. From here you most often land on [grill-with-docs](https://aihero.dev/skills-grill-with-docs), the head of the main flow, or [triage](https://aihero.dev/skills-triage), the on-ramp for work that arrived rather than work you started.
+`ask-matt` is a **standalone router** that sits over the whole set. It is never a step in a chain; it points into every chain, and it is the node the other docs pages link back to so none of them has to redraw the graph. From here you most often land on [grill-with-docs](https://aihero.dev/skills-grill-with-docs), the head of the human-steered flow, [grill-agent](https://aihero.dev/skills-grill-agent), the self-directed agent-run alternative, or [triage](https://aihero.dev/skills-triage), the on-ramp for work that arrived rather than work you started.
 
 It is a [secondary source](https://www.aihero.dev/ai-coding-dictionary/secondary-source) over the skills it describes. Where the router and a `SKILL.md` disagree, the `SKILL.md` is right.

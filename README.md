@@ -193,6 +193,10 @@ Skills I use daily for code work.
 
 - **[ask-matt](./skills/engineering/ask-matt/SKILL.md)**: Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
 - **[grill-with-docs](./skills/engineering/grill-with-docs/SKILL.md)**: Grilling session that also builds your project's domain model, sharpening terminology and updating `CONTEXT.md` and ADRs inline.
+- **[grill-agent](./skills/engineering/grill-agent/SKILL.md)**: Resolve the design autonomously, then hand implementation to a separate agent.
+- **[grill-agent-with-docs](./skills/engineering/grill-agent-with-docs/SKILL.md)**: Resolve the design autonomously, maintain the domain model, then hand implementation to a separate agent.
+- **[grill-agent-team](./skills/engineering/grill-agent-team/SKILL.md)**: Have one agent grill another, then implement directly or hand complex work to a third agent.
+- **[grill-agent-team-with-docs](./skills/engineering/grill-agent-team-with-docs/SKILL.md)**: Run the agent-team grill and implementation flow while maintaining the domain model.
 - **[triage](./skills/engineering/triage/SKILL.md)**: Move issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)**: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
 - **[setup-matt-pocock-skills](./skills/engineering/setup-matt-pocock-skills/SKILL.md)**: Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo before using the other engineering skills.
@@ -227,5 +231,5 @@ General workflow tools, not code-specific.
 
 **Model-invoked**
 
-- **[grilling](./skills/productivity/grilling/SKILL.md)**: Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
+- **[grilling](./skills/productivity/grilling/SKILL.md)**: Walk a user or delegated agent through every reachable branch of a design tree. The reusable primitive behind the interactive and agent-run grilling skills.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)**: Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
